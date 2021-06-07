@@ -137,6 +137,7 @@ class AccountMove(models.Model):
         if self.partner_id.tax_type == "unregister" and self.partner_id.fbr_ntn == False:
             if self.partner_id.fbr_stn == True and self.partner_id.fbr_stn_active == False:
                 self.case2 = True
+                self.case3 = False
                 self.case = True
 
         # if self.partner_id.tax_type == "register" and self.partner_id.fbr_ntn == True:
