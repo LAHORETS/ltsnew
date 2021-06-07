@@ -169,6 +169,7 @@ class AccountMove(models.Model):
                 if self.partner_id.partner_type == 'individual':
                     print("Case 5")
                     self.case5 = True
+                    self.case4 = False
                     self.case = True
 
     @api.depends("wth_amount", "tax_amount", 'global_discount_type', 'global_order_discount','amount_tax')
