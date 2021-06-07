@@ -57,13 +57,17 @@ class AccountMove(models.Model):
     @api.depends('invoice_line_ids.product_id')
     def _check_case_3(self):
         if self.invoice_line_ids and self.partner_id.tax_type == "register":
+            self.case = False
             for line in self.invoice_line_ids: 
+                self.case3 = False
+                self.case4 = False
                 if line.product_id.type == 'consu' or 'product':
 
                         self.case3 = True
                         self.case4 = False
                 else:
                     self.case3 = False
+                    self.case4 = True
         else:
             self.case3 = False
 
