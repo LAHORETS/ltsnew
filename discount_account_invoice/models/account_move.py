@@ -61,6 +61,7 @@ class AccountMove(models.Model):
             self.case4 = False
             for line in self.invoice_line_ids: 
                 if line.product_id.type !='service':
+                    if self.partner_id.fbr_ntn_active ==False:
 
                         self.case3 = True
                         self.case4 = False
