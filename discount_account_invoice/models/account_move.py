@@ -202,7 +202,7 @@ class AccountMove(models.Model):
             self.global_order_discount = self.after_wht
 
         if self.case5 == True:
-            total = self.amount_untaxed + self.after_tax_wht
+            total = self.amount_untaxed + self.total_tax_amount
             self.after_wht = total * (self.wth_amount/100)
             self.global_order_discount = self.after_wht
 
