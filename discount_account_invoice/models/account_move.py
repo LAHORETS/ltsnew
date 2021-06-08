@@ -66,8 +66,9 @@ class AccountMove(models.Model):
                         self.case3 = True
                         self.case4 = False
                 else:
-                    self.case3 = False
-                    self.case4 = True
+                     if self.partner_id.fbr_ntn_active ==False
+                        self.case3 = False
+                        self.case4 = True
         else:
             self.case3 = False
 
@@ -77,6 +78,7 @@ class AccountMove(models.Model):
         if self.invoice_line_ids and self.partner_id.tax_type == "register":
             for line in self.invoice_line_ids:
                 if line.product_id.type == 'service':
+                     if self.partner_id.fbr_ntn_active ==False
    
                         self.case4 = True
                         self.case3 = False
