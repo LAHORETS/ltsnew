@@ -2,11 +2,12 @@
 {
     'name': "Document Sequence",
 
-    'summary': """
-        It will create auto sequence numbering of the folder""",
+  'summary': """
+       Document Sequence""",
 
     'description': """
-        It will create auto sequence numbering of the folder
+       Document Sequence
+    """,
 
     'author': "Viltco Technologies",
     'website': "http://www.yourcompany.com",
