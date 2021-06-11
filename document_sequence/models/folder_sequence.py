@@ -4,7 +4,7 @@ from odoo import models, fields, api
 
 class document_sequence(models.Model):
     _inherit="documents.folder"
-    _order = 'doc_seq desc'
+    _order = 'doc_seq asc'
     
     doc_seq= fields.Char(string="folder seq" ,copy=False)
     complete_seq =fields.Char(string="full seq" ,copy=False)
