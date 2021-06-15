@@ -44,48 +44,45 @@ class AccountMove(models.Model):
     case1 = fields.Boolean("Case 1", compute="compute_case_partner")
     case2 = fields.Boolean("Case 2", compute="compute_case_partner")
     case3 = fields.Boolean("Case 3",compute="_check_case_3")
-    case4 = fields.Boolean("Case 4",compute="_check_case_4")
+    case4 = fields.Boolean("Case 4")
     case5 = fields.Boolean("Case 5", compute="compute_case_partner")
     case = fields.Boolean("Case")
+    case_3_5 = fields.Boolean("Case")
     fbr_taxes = fields.Integer(compute='compute_count')
     income_tax = fields.Selection([('yes', 'Deductable'), ('no', 'Not Deductable')], string="Product Tax")
     service_tax = fields.Selection([('yes', 'Deductable'), ('no', 'Not Deductable')], string="Service Tax")
     prodtotal = fields.Float("Total Product Amt")
     servicetotal = fields.Float("Total Service Amt")
     total_tax_amount = fields.Float("Total Tax Amt", compute="compute_total_tax")
+    case_state = fields.Selection([('1', '1'),('2', '2'),('3', '3'),('4', '4'),('5', '5')], string="Case State",readonly=True)
 
     @api.depends('invoice_line_ids.product_id')
     def _check_case_3(self):
-        if self.invoice_line_ids and self.partner_id.tax_type == "register":
-            self.case3 = False
-            self.case4 = False
-            for line in self.invoice_line_ids: 
-                if line.product_id.type !='service':
-                    if self.partner_id.fbr_ntn_active ==False:
-
+        self.case3 = False
+        self.case4 = False
+        if self.partner_id.tax_type == "register" and self.partner_id.fbr_ntn == True:
+            if self.partner_id.fbr_stn == True and self.partner_id.fbr_stn_active ==True:
+                for line in self.invoice_line_ids:
+                    if line.product_id.type != 'service':
+                        print("case3--------> after")
                         self.case3 = True
+                        self.case_state="3"
                         self.case4 = False
-                else:
-                     if self.partner_id.fbr_ntn_active ==False:
-                        self.case3 = False
-                        self.case4 = True
-        else:
-            self.case3 = False
+                        self.case5 = False
+                        self.case1 = False
+                        self.case2 = False
+                        self.case_3_5 = True
+                    else:
+                        if line.product_id.type == 'service':
+                            self.case4 = True
+                            self.case_state = "4"
+                            self.case5=False
+                            self.case3 = False
+                            self.case1 = False
+                            self.case2 = False
 
-
-    @api.depends('invoice_line_ids.product_id')
-    def _check_case_4(self):
-        if self.invoice_line_ids and self.partner_id.tax_type == "register":
-            for line in self.invoice_line_ids:
-                if line.product_id.type == 'service':
-                     if self.partner_id.fbr_ntn_active ==False:
-   
-                        self.case4 = True
-                        self.case3 = False
-                else:
-                    self.case4 = False
-        else:
-            self.case4 = False
+            else:
+                self.case3 = False
 
 
     @api.depends("amount_untaxed")
@@ -135,15 +132,17 @@ class AccountMove(models.Model):
         self.case2 = False
         self.case5 = False
         self.case = False
-        if self.partner_id.tax_type == "unregister" and self.partner_id.fbr_ntn == True:
-            if self.partner_id.fbr_stn == True:
+        if self.partner_id.fbr_stn == True  and self.partner_id.fbr_ntn == True:
+            if self.partner_id.tax_type == "unregister":
+                print("Case 1------------>")
                 self.case1 = True
+                self.case_state = "1"
                 self.case = True
 
         if self.partner_id.tax_type == "unregister" and self.partner_id.fbr_ntn == False:
-            if self.partner_id.fbr_stn == True and self.partner_id.fbr_stn_active == False:
+            if self.partner_id.fbr_stn == True:
                 self.case2 = True
-                self.case3 = False
+                self.case_state = "2"
                 self.case = True
 
         # if self.partner_id.tax_type == "register" and self.partner_id.fbr_ntn == True:
@@ -168,13 +167,15 @@ class AccountMove(models.Model):
         #                     # raise ValidationError(_('This product is not of service type'))
 
         if self.partner_id.tax_type == "register":
-            if self.partner_id.fbr_stn == True:
-                if self.partner_id.fbr_ntn_active ==True:
+            if self.partner_id.fbr_stn == True and self.partner_id.fbr_ntn:
+                if  self.partner_id.fbr_ntn_active ==False and self.partner_id.fbr_stn_active ==False:
                     print("Case 5")
                     self.case5 = True
-                    self.case4 = False
+                    self.case_state = "5"
                     self.case3 = False
+                    self.case4 = False
                     self.case = True
+                    self.case_3_5 = True
 
     @api.depends("wth_amount", "tax_amount", 'global_discount_type', 'global_order_discount','amount_tax')
     def compute_after_WHT(self):
@@ -219,7 +220,7 @@ class AccountMove(models.Model):
             total = ((self.tax_amount / 100) * self.amount_untaxed)
             self.after_tax_wht = total
         if self.case3 == True:
-            print("Case 3")
+
             total = (self.amount_tax)*(self.total_tax_amount/100)
             self.after_tax_wht = total
             # self.ks_global_tax_rate=-1*total
@@ -234,11 +235,6 @@ class AccountMove(models.Model):
             print("Case 5")
             tax_amount = (self.amount_untaxed * ((self.tax_amount / 100)))
             self.after_tax_wht = tax_amount
-
-
-
-
-
 
     @api.depends("after_tax_wht",'global_discount_type',
                  'global_order_discount')
@@ -907,7 +903,10 @@ class AccountMoveLine(models.Model):
     tax_amount = fields.Monetary(string='Tax amount', store=True, readonly=True,
                                  currency_field='always_set_currency_id', compute="get_line_tax_amount")
 
-    @api.depends('quantity', 'tax_ids', 'price_unit')
+    case_state = fields.Selection([('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5')], string="Case State",
+                                  readonly=True)
+
+    @api.depends('product_id','quantity', 'tax_ids', 'price_unit','move_id.case_state')
     def get_line_tax_amount(self):
         for line in self:
             line.tax_amount = 0.0
@@ -920,6 +919,8 @@ class AccountMoveLine(models.Model):
                         line_tax_amount += tax_on_amount
 
                 line.tax_amount = line_tax_amount
+
+                line.case_state = line.move_id.case_state
 
     @api.model
     def _get_price_total_and_subtotal_model(self, price_unit, quantity, discount, currency, product, partner, taxes, move_type):

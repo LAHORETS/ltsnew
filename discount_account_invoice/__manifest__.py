@@ -5,7 +5,7 @@
   "category"             :  "Accounting",
   "version"              :  "1.1.1",
   "sequence"             :  1,
-  "author"               :  "Viltco Technologies.",
+  "author"               :  "Webkul Software Pvt. Ltd.",
   "license"              :  "Other proprietary",
   "description"          :  """Odoo Income Tax On Bills""",
   "depends"              :  ['account'],

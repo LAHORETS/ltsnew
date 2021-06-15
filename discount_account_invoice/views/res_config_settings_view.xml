@@ -17,7 +17,7 @@
                         <div class="o_setting_right_pane">
                             <label for="group_order_global_discount"/>
                             <div class="text-muted">
-                                Allow Income Tax on Invoices
+                                Allow Global discount on Invoices
                             </div>
                             <div class="content-group" attrs="{'invisible': [('group_order_global_discount', '=', False)]}">
                                 <div class="mt16">
@@ -37,7 +37,7 @@
                         <div class="o_setting_right_pane">
                             <label for="global_discount_tax"/>
                             <div class="text-muted">
-                                Income Tax will be calculated on
+                                Global discount will be calculated on
                             </div>
                             <div class="mt8">
                                 <field name="global_discount_tax" class="o_light_label" widget="radio" />
