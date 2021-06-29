@@ -14,6 +14,9 @@ This app increases width of Search Panel.
     'data': [
         'views/assets.xml',
     ],
+     'qweb': [
+        "static/src/xml/*.xml",
+    ],
     'installable': True,
     'application': True,
     'auto_install': False,
